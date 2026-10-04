@@ -1,0 +1,7 @@
+import {NavLink,Outlet} from 'react-router-dom';import TopBar from './TopBar.jsx';import {useApp} from '../context/AppContext.jsx';import {useAuth} from '../context/AuthContext.jsx';import {useData} from '../context/DataContext.jsx';
+const NAV=[['overview','🏭','ov'],['analytics','📊','an'],['optimization','⚙️','Optimization'],['ai','🤖','AI Insights'],['alerts','🔔','al'],['maintenance','🔧','mt'],['approvals','✅','ap'],['people','👥','pe'],['tasks','🧰','Tasks'],['devices','📡','dv'],['settings','⚙️','st'],['reports','📄','rp']];
+const OPERATOR_NAV=[['overview','🏭','Factory'],['analytics','📊','Analytics'],['optimization','⚙️','Optimization'],['ai','🤖','AI Insights'],['alerts','🔔','Alerts'],['maintenance','🔧','Maintenance'],['approvals','✅','Approvals'],['people','👥','People'],['tasks','🧰','Tasks'],['devices','📡','Devices'],['settings','⚙️','Settings'],['reports','📄','Reports']];
+export default function Shell(){const {user}=useAuth(),{t}=useApp(),{alerts}=useData();
+const admin=user.role==='admin',items=admin?NAV:OPERATOR_NAV,base=admin?'/admin/':'/operator/';
+const alertCount=alerts.filter(alert=>alert.status!=='Resolved').length;
+return(<><TopBar/><main><nav className="tabs" aria-label={admin?'Admin':'Operator'}>{items.map(([p,e,l])=><NavLink key={p} to={base+p} className={({isActive})=>isActive?'on':''}>{e} {admin&&p!=='optimization'?t(l):l}{p==='alerts'&&alertCount?` (${alertCount})`:''}</NavLink>)}</nav><Outlet/></main></>)}

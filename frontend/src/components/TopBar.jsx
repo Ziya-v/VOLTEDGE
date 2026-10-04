@@ -1,0 +1,11 @@
+import {useEffect,useState} from 'react';import {useNavigate} from 'react-router-dom';import {useApp} from '../context/AppContext.jsx';import {useAuth} from '../context/AuthContext.jsx';import {useData} from '../context/DataContext.jsx';import {adminService} from '../services/adminService.js';
+export default function TopBar(){const {t,lang,setLang,theme,setTheme,languages,LANGS}=useApp(),{user,logout}=useAuth(),nav=useNavigate();
+const data=useData(),machines=data?.machines||[],[demo,setDemo]=useState(null),[demoBusy,setDemoBusy]=useState(false),[demoError,setDemoError]=useState('');
+const admin=user?.role==='admin',live=import.meta.env.VITE_USE_LIVE_AUTH==='true',activeMachines=machines.some(machine=>machine.status!=='inactive');
+useEffect(()=>{if(!admin||!live){setDemo(null);return}let mounted=true;const refresh=()=>adminService.demoIotStatus().then(status=>mounted&&setDemo(status)).catch(()=>{});refresh();const timer=setInterval(refresh,5000);return()=>{mounted=false;clearInterval(timer)}},[admin,live]);
+const toggleDemo=async()=>{setDemoBusy(true);setDemoError('');try{const status=await (demo?.active?adminService.stopDemoIot():adminService.startDemoIot());setDemo(status)}catch(error){setDemoError(error.message||'Could not update demo meter')}finally{setDemoBusy(false)}};
+return(<div className="top"><span className="logo">⚡ VoltEdge</span><span className="sp"/>
+<select value={lang} onChange={e=>setLang(e.target.value)} aria-label="Language">{languages.map(l=><option key={l} value={l}>{LANGS[l]}</option>)}</select>
+<select value={theme} onChange={e=>setTheme(e.target.value)} aria-label="Theme">{[['mist','🌤️ Mist'],['sage','🌿 Sage'],['dusk','🌙 Dusk']].map(([v,l])=><option key={v} value={v}>{l}</option>)}</select>
+{admin&&live&&<><button className={demo?.active?'r':'p'} onClick={toggleDemo} disabled={demoBusy||(!demo?.active&&!activeMachines)} aria-pressed={!!demo?.active} title={demo?.active?'Stop the simulated meter':'Start simulated readings for active machines'}>{demoBusy?'Please wait…':demo?.active?'■ Stop demo meter':'▶ Start demo meter'}</button>{demoError&&<span className="err top-demo-error" role="alert">{demoError}</span>}</>}
+{user&&<><span className="mut">{user.name} · {user.role}</span><button onClick={async()=>{await logout();nav('/login')}}>{t('out')}</button></>}</div>)}

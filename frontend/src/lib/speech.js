@@ -1,0 +1,1 @@
+export function speak(text,lang){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang==='hi'?'hi-IN':'en-IN';speechSynthesis.speak(u)}
