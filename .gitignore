@@ -5,3 +5,4 @@ __pycache__
 
 frontend/.env.local
 backend/app/ml/voltedge_anomaly_models.pkl
+backend/app/ml/voltedge_anomaly_models.pkl
