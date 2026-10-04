@@ -4,3 +4,4 @@ dist
 __pycache__
 
 frontend/.env.local
+backend/app/ml/voltedge_anomaly_models.pkl
